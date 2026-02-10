@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:to_do/model/tasksModel.dart';
 import '../utilities/constans.dart';
 import 'package:to_do/model/listsModel.dart';
 import 'package:to_do/utilities/labelsType.dart';
+import 'package:to_do/screens/tasksPage.dart';
 
 class ListItem extends StatefulWidget {
   final ListsModel list;
+  final TaskModel task;
 
-  const ListItem({super.key, required this.list});
+  const ListItem({super.key, required this.list, required this.task});
 
   @override
   State<ListItem> createState() => _ListItemState();
@@ -28,7 +31,18 @@ class _ListItemState extends State<ListItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TasksPage(
+              listId: widget.list.id,
+              listName: widget.list.listName,
+            ),
+          ),
+        );
+      },
+
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         padding: const EdgeInsets.all(12),

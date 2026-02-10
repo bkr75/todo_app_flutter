@@ -15,7 +15,7 @@ class ListsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: list.map((item) {
-            return ListItem(list: item);
+            return ListItem(list: item, task: item);
           }).toList(),
         ),
       );

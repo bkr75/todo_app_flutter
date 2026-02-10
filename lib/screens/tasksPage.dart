@@ -3,7 +3,9 @@ import 'package:to_do/utilities/constans.dart';
 import '../utilities/labelsType.dart';
 
 class TasksPage extends StatefulWidget {
-  const TasksPage({super.key});
+  final String listId;
+  final String listName;
+  const TasksPage({super.key,required this.listId,required this.listName});
 
   @override
   State<TasksPage> createState() => _TasksPageState();
