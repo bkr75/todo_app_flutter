@@ -22,7 +22,21 @@ class _ListsPageState extends State<ListsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: list.map((item) {
-            return ListItem(list: item);
+            return ListItem(
+              list: item,
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TasksPage(
+                      reciveListId: item.id,
+                      reciveListName: item.listName,
+                    ),
+                  ),
+                );
+                setState(() {});
+              },
+            );
           }).toList(),
         ),
       );
@@ -63,7 +77,6 @@ class _ListsPageState extends State<ListsPage> {
                       final newList = ListsModel(
                         id: _newId(),
                         listName: 'New list',
-                        type: _selectedType,
                         nameLabel: _selectedType.name,
                       );
 

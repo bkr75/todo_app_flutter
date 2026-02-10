@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:to_do/utilities/constans.dart';
 import '../utilities/labelsType.dart';
 import 'package:to_do/model/tasksModel.dart';
+import 'package:to_do/model/listsModel.dart';
 
 class TasksPage extends StatefulWidget {
   final String reciveListId;
@@ -50,6 +51,29 @@ class _TasksPageState extends State<TasksPage> {
   void deleteTask(String taskId) {
     setState(() {
       task.removeWhere((t) => t.id == taskId);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    final current = list.firstWhere(
+      (l) => l.id == widget.reciveListId,
+      orElse: () => list.first,
+    );
+
+    selectedLable = current.type;
+  }
+
+  void updateListLabel(labelType newType) {
+    setState(() {
+      selectedLable = newType;
+
+      final i = list.indexWhere((l) => l.id == widget.reciveListId);
+      if (i != -1) {
+        list[i] = list[i].copyWith(type: newType, nameLabel: newType.name);
+      }
     });
   }
 
@@ -163,9 +187,7 @@ class _TasksPageState extends State<TasksPage> {
                           children: [
                             LabelsType(
                               onPressed: () {
-                                setState(() {
-                                  selectedLable = labelType.personal;
-                                });
+                                updateListLabel(labelType.personal);
                               },
                               labelName: 'Personal',
                               labelColor: selectedLable == labelType.personal
@@ -174,9 +196,7 @@ class _TasksPageState extends State<TasksPage> {
                             ),
                             LabelsType(
                               onPressed: () {
-                                setState(() {
-                                  selectedLable = labelType.Work;
-                                });
+                                updateListLabel(labelType.Work);
                               },
                               labelName: 'Work',
                               labelColor: selectedLable == labelType.Work
@@ -185,9 +205,7 @@ class _TasksPageState extends State<TasksPage> {
                             ),
                             LabelsType(
                               onPressed: () {
-                                setState(() {
-                                  selectedLable = labelType.Finance;
-                                });
+                                updateListLabel(labelType.Finance);
                               },
                               labelName: 'Finance',
                               labelColor: selectedLable == labelType.Finance
@@ -196,9 +214,7 @@ class _TasksPageState extends State<TasksPage> {
                             ),
                             LabelsType(
                               onPressed: () {
-                                setState(() {
-                                  selectedLable = labelType.Other;
-                                });
+                                updateListLabel(labelType.Other);
                               },
                               labelName: 'Other',
                               labelColor: selectedLable == labelType.Other

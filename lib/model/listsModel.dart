@@ -4,15 +4,29 @@ import '../utilities/labelsType.dart';
 class ListsModel {
   final String id;
   final String listName;
-  final labelType type;
+  final labelType? type;
   final String nameLabel;
 
   ListsModel({
     required this.id,
     required this.listName,
-    required this.type,
+    this.type,
     required this.nameLabel,
   });
+
+  ListsModel copyWith({
+    String? id,
+    String? listName,
+    labelType? type,
+    String? nameLabel,
+  }) {
+    return ListsModel(
+      id: id ?? this.id,
+      listName: listName ?? this.listName,
+      type: type ?? this.type,
+      nameLabel: nameLabel ?? this.nameLabel,
+    );
+  }
 }
 
 final List<ListsModel> list = [
