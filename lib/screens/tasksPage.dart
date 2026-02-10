@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:to_do/utilities/constans.dart';
+import 'package:to_do/utilities/constants.dart';
+import 'package:to_do/widgets.dart/primary_button.dart';
 import '../utilities/labelsType.dart';
-import 'package:to_do/model/tasksModel.dart';
-import 'package:to_do/model/listsModel.dart';
+import 'package:to_do/model/task_model.dart';
+import 'package:to_do/model/list_model.dart';
 
 class TasksPage extends StatefulWidget {
   final String reciveListId;
@@ -88,7 +89,7 @@ class _TasksPageState extends State<TasksPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         actions: [
-          addSaveButton(
+          primaryButtons(
             buttonHeight: 40,
             buttonName: 'save',
             buttonWidth: 80,
@@ -166,7 +167,7 @@ class _TasksPageState extends State<TasksPage> {
               Expanded(
                 child: Column(
                   children: [
-                    addSaveButton(
+                    primaryButtons(
                       onPressed: addTask,
                       buttonHeight: 50,
                       buttonName: '+ Add Task',
@@ -231,38 +232,6 @@ class _TasksPageState extends State<TasksPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class addSaveButton extends StatelessWidget {
-  const addSaveButton({
-    super.key,
-    required this.buttonHeight,
-    required this.buttonName,
-    required this.buttonWidth,
-    required this.onPressed,
-  });
-
-  final String buttonName;
-  final double buttonHeight;
-  final double buttonWidth;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        margin: EdgeInsets.all(5),
-        height: buttonHeight,
-        width: buttonWidth,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(7),
-          color: kTaskButton,
-        ),
-        child: Center(child: Text(buttonName, style: kAddTaskButton)),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:to_do/utilities/constans.dart';
+import 'package:to_do/utilities/constants.dart';
 
 enum labelType { personal, Work, Finance, Other }
 

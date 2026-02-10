@@ -1,4 +1,3 @@
-import 'package:to_do/model/tasksModel.dart';
 import '../utilities/labelsType.dart';
 
 class ListsModel {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utilities/constans.dart';
+import '../utilities/constants.dart';
 
 class EmptyLists extends StatelessWidget {
   const EmptyLists({super.key});

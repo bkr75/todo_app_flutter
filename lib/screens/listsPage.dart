@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:to_do/screens/tasksPage.dart';
-import '../utilities/constans.dart';
-import 'package:to_do/model/listsModel.dart';
-import 'package:to_do/data/emptyLists.dart';
-import 'package:to_do/data/listItem.dart';
+import '../utilities/constants.dart';
+import 'package:to_do/model/list_model.dart';
+import 'package:to_do/widgets.dart/emptyLists.dart';
+import 'package:to_do/widgets.dart/list_Item.dart';
 import 'package:to_do/utilities/labelsType.dart';
 
 class ListsPage extends StatefulWidget {
@@ -71,9 +71,6 @@ class _ListsPageState extends State<ListsPage> {
                 children: [
                   FloatingActionButton(
                     onPressed: () {
-                      final newId = DateTime.now().microsecondsSinceEpoch
-                          .toString();
-
                       final newList = ListsModel(
                         id: _newId(),
                         listName: 'New list',
