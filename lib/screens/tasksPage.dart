@@ -19,6 +19,40 @@ class TasksPage extends StatefulWidget {
 class _TasksPageState extends State<TasksPage> {
   labelType? selectedLable;
 
+  final myController = TextEditingController();
+
+  @override
+  void dispose() {
+    myController.dispose();
+    super.dispose();
+  }
+
+  void addTask() {
+    final title = myController.text.trim();
+    if (title.isEmpty) return;
+
+    final newId = DateTime.now().microsecondsSinceEpoch.toString();
+
+    setState(() {
+      task.add(
+        TaskModel(
+          id: newId,
+          listId: widget.reciveListId,
+          taskTitle: title,
+          isDone: false,
+        ),
+      );
+    });
+
+    myController.clear();
+  }
+
+  void deleteTask(String taskId) {
+    setState(() {
+      task.removeWhere((t) => t.id == taskId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredTasks = task
@@ -30,7 +64,12 @@ class _TasksPageState extends State<TasksPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         actions: [
-          addSaveButton(buttonHeight: 40, buttonName: 'save', buttonWidth: 80),
+          addSaveButton(
+            buttonHeight: 40,
+            buttonName: 'save',
+            buttonWidth: 80,
+            onPressed: () {},
+          ),
         ],
       ),
       body: SafeArea(
@@ -46,6 +85,7 @@ class _TasksPageState extends State<TasksPage> {
                   children: [
                     Text(widget.reciveListName, style: kTitleText),
                     TextField(
+                      controller: myController,
                       decoration: InputDecoration(
                         border: UnderlineInputBorder(),
                       ),
@@ -85,7 +125,12 @@ class _TasksPageState extends State<TasksPage> {
                                       ),
                                     ),
                                     Spacer(),
-                                    Icon(Icons.delete),
+                                    GestureDetector(
+                                      onTap: () {
+                                        deleteTask(t.id);
+                                      },
+                                      child: Icon(Icons.delete),
+                                    ),
                                   ],
                                 );
                               },
@@ -98,6 +143,7 @@ class _TasksPageState extends State<TasksPage> {
                 child: Column(
                   children: [
                     addSaveButton(
+                      onPressed: addTask,
                       buttonHeight: 50,
                       buttonName: '+ Add Task',
                       buttonWidth: 150,
@@ -180,16 +226,18 @@ class addSaveButton extends StatelessWidget {
     required this.buttonHeight,
     required this.buttonName,
     required this.buttonWidth,
+    required this.onPressed,
   });
 
   final String buttonName;
   final double buttonHeight;
   final double buttonWidth;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onPressed,
       child: Container(
         margin: EdgeInsets.all(5),
         height: buttonHeight,
