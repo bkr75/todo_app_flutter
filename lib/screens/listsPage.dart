@@ -4,9 +4,16 @@ import '../utilities/constans.dart';
 import 'package:to_do/model/listsModel.dart';
 import 'package:to_do/data/emptyLists.dart';
 import 'package:to_do/data/listItem.dart';
+import 'package:to_do/utilities/labelsType.dart';
 
-class ListsPage extends StatelessWidget {
+class ListsPage extends StatefulWidget {
   const ListsPage({super.key});
+
+  @override
+  State<ListsPage> createState() => _ListsPageState();
+}
+
+class _ListsPageState extends State<ListsPage> {
   Widget listCondition() {
     if (list.isEmpty) {
       return EmptyLists();
@@ -15,12 +22,17 @@ class ListsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: list.map((item) {
-            return ListItem(list: item, task: item);
+            return ListItem(list: item);
           }).toList(),
         ),
       );
     }
   }
+
+  final TextEditingController _nameController = TextEditingController();
+  labelType _selectedType = labelType.Work;
+
+  String _newId() => DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +49,7 @@ class ListsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextField(decoration: kTextField),
+              TextField(controller: _nameController, decoration: kTextField),
               Expanded(child: listCondition()),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -45,12 +57,27 @@ class ListsPage extends StatelessWidget {
                 children: [
                   FloatingActionButton(
                     onPressed: () {
+                      final newId = DateTime.now().microsecondsSinceEpoch
+                          .toString();
+
+                      final newList = ListsModel(
+                        id: _newId(),
+                        listName: 'New list',
+                        type: _selectedType,
+                        nameLabel: _selectedType.name,
+                      );
+
+                      setState(() {
+                        list.add(newList);
+                      });
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) {
-                            return TasksPage();
-                          },
+                          builder: (_) => TasksPage(
+                            reciveListId: newList.id,
+                            reciveListName: newList.listName,
+                          ),
                         ),
                       );
                     },

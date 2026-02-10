@@ -7,9 +7,8 @@ import 'package:to_do/screens/tasksPage.dart';
 
 class ListItem extends StatefulWidget {
   final ListsModel list;
-  final TaskModel task;
 
-  const ListItem({super.key, required this.list, required this.task});
+  const ListItem({super.key, required this.list});
 
   @override
   State<ListItem> createState() => _ListItemState();
@@ -36,8 +35,8 @@ class _ListItemState extends State<ListItem> {
           context,
           MaterialPageRoute(
             builder: (_) => TasksPage(
-              listId: widget.list.id,
-              listName: widget.list.listName,
+              reciveListId: widget.list.id,
+              reciveListName: widget.list.listName,
             ),
           ),
         );

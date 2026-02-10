@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:to_do/utilities/constans.dart';
 import '../utilities/labelsType.dart';
+import 'package:to_do/model/tasksModel.dart';
 
 class TasksPage extends StatefulWidget {
-  final String listId;
-  final String listName;
-  const TasksPage({super.key,required this.listId,required this.listName});
+  final String reciveListId;
+  final String reciveListName;
+  const TasksPage({
+    super.key,
+    required this.reciveListId,
+    required this.reciveListName,
+  });
 
   @override
   State<TasksPage> createState() => _TasksPageState();
@@ -17,12 +22,16 @@ class _TasksPageState extends State<TasksPage> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredTasks = task
+        .where((t) => t.listId == widget.reciveListId && !t.isDone)
+        .toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         actions: [
-          taskButtons(buttonHeight: 40, buttonName: 'save', buttonWidth: 80),
+          addSaveButton(buttonHeight: 40, buttonName: 'save', buttonWidth: 80),
         ],
       ),
       body: SafeArea(
@@ -37,19 +46,46 @@ class _TasksPageState extends State<TasksPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Title', style: kTitleText),
-                    Row(
-                      children: [
-                        Checkbox(
-                          checkColor: Colors.white,
-                          value: isChecked,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isChecked = value!;
-                            });
-                          },
-                        ),
-                        Text('to do', style: TextStyle(color: Colors.black)),
-                      ],
+                    Expanded(
+                      child: filteredTasks.isEmpty
+                          ? const Center(child: Text('No tasks yet'))
+                          : ListView.builder(
+                              itemCount: filteredTasks.length,
+                              itemBuilder: (context, index) {
+                                final t = filteredTasks[index];
+
+                                return Row(
+                                  children: [
+                                    Checkbox(
+                                      value: t.isDone,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          final i = task.indexWhere(
+                                            (x) => x.id == t.id,
+                                          );
+                                          if (i != -1) {
+                                            task[i] = TaskModel(
+                                              id: task[i].id,
+                                              listId: task[i].listId,
+                                              taskTitle: task[i].taskTitle,
+                                              isDone: value ?? false,
+                                            );
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    Text(
+                                      t.taskTitle,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(Icons.delete),
+                                  ],
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
@@ -57,7 +93,7 @@ class _TasksPageState extends State<TasksPage> {
               Expanded(
                 child: Column(
                   children: [
-                    taskButtons(
+                    addSaveButton(
                       buttonHeight: 50,
                       buttonName: '+ Add Task',
                       buttonWidth: 150,
@@ -134,8 +170,8 @@ class _TasksPageState extends State<TasksPage> {
   }
 }
 
-class taskButtons extends StatelessWidget {
-  const taskButtons({
+class addSaveButton extends StatelessWidget {
+  const addSaveButton({
     super.key,
     required this.buttonHeight,
     required this.buttonName,
