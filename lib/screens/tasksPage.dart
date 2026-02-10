@@ -18,7 +18,6 @@ class TasksPage extends StatefulWidget {
 
 class _TasksPageState extends State<TasksPage> {
   labelType? selectedLable;
-  bool isChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +44,12 @@ class _TasksPageState extends State<TasksPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Title', style: kTitleText),
+                    Text(widget.reciveListName, style: kTitleText),
+                    TextField(
+                      decoration: InputDecoration(
+                        border: UnderlineInputBorder(),
+                      ),
+                    ),
                     Expanded(
                       child: filteredTasks.isEmpty
                           ? const Center(child: Text('No tasks yet'))
@@ -106,7 +110,7 @@ class _TasksPageState extends State<TasksPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text('Choose a lable', style: kTitleText),
+                        Text('Choose a label', style: kTitleText),
                         SizedBox(height: 30),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
