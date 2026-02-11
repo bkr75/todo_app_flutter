@@ -5,6 +5,7 @@ import 'package:to_do/model/list_model.dart';
 import 'package:to_do/widgets.dart/emptyLists.dart';
 import 'package:to_do/widgets.dart/list_Item.dart';
 import 'package:to_do/utilities/labelsType.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class ListsPage extends StatefulWidget {
   const ListsPage({super.key});
@@ -14,33 +15,40 @@ class ListsPage extends StatefulWidget {
 }
 
 class _ListsPageState extends State<ListsPage> {
+  final listsBox = Hive.box<ListsModel>('listsBox');
+
   Widget listCondition() {
-    if (list.isEmpty) {
-      return EmptyLists();
-    } else {
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: list.map((item) {
-            return ListItem(
-              list: item,
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TasksPage(
-                      reciveListId: item.id,
-                      reciveListName: item.listName,
-                    ),
-                  ),
-                );
-                setState(() {});
-              },
-            );
-          }).toList(),
-        ),
-      );
+    if (listsBox.isEmpty) {
+      return const EmptyLists();
     }
+
+    final entries = listsBox.toMap().entries.toList();
+
+    return ListView.builder(
+      itemCount: entries.length,
+      itemBuilder: (context, index) {
+        final entry = entries[index];
+        final key = entry.key as int;
+        final item = entry.value;
+
+        return ListItem(
+          list: item,
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TasksPage(
+                  reciveListId: item.id,
+                  reciveListName: item.listName,
+                  listKey: key,
+                ),
+              ),
+            );
+            setState(() {});
+          },
+        );
+      },
+    );
   }
 
   final TextEditingController _nameController = TextEditingController();
@@ -70,26 +78,26 @@ class _ListsPageState extends State<ListsPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   FloatingActionButton(
-                    onPressed: () {
+                    onPressed: () async {
                       final newList = ListsModel(
                         id: _newId(),
                         listName: 'New list',
-                        nameLabel: _selectedType.name,
+                        typeIndex: _selectedType.index,
                       );
 
-                      setState(() {
-                        list.add(newList);
-                      });
-
+                      final key = await listsBox.add(newList);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => TasksPage(
                             reciveListId: newList.id,
                             reciveListName: newList.listName,
+                            listKey: key,
                           ),
                         ),
                       );
+
+                      setState(() {});
                     },
                     tooltip: 'Increment',
                     child: const Icon(Icons.add, color: Colors.white),

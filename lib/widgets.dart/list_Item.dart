@@ -6,7 +6,7 @@ import 'package:to_do/utilities/labelsType.dart';
 class ListItem extends StatelessWidget {
   final ListsModel list;
   final VoidCallback onPressed;
-  const ListItem({super.key, required this.list,required this.onPressed});
+  const ListItem({super.key, required this.list, required this.onPressed});
   Color listsColor() {
     if (list.type == labelType.Work) {
       return Color(0xFFFFF6E7);
@@ -35,7 +35,9 @@ class ListItem extends StatelessWidget {
           children: [
             Text(list.listName, style: kListName),
             LabelsType(
-              labelName: list.nameLabel,
+              labelName: list.typeIndex == null
+                  ? 'No label'
+                  : labelType.values[list.typeIndex!].name,
               labelColor: kactiveTaskButton,
               onPressed: () {},
             ),

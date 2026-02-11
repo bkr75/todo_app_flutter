@@ -4,14 +4,17 @@ import 'package:to_do/widgets.dart/primary_button.dart';
 import '../utilities/labelsType.dart';
 import 'package:to_do/model/task_model.dart';
 import 'package:to_do/model/list_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class TasksPage extends StatefulWidget {
   final String reciveListId;
   final String reciveListName;
+  final int listKey;
   const TasksPage({
     super.key,
     required this.reciveListId,
     required this.reciveListName,
+    required this.listKey,
   });
 
   @override
@@ -36,7 +39,7 @@ class _TasksPageState extends State<TasksPage> {
     final newId = DateTime.now().microsecondsSinceEpoch.toString();
 
     setState(() {
-      task.add(
+      tasksBox.add(
         TaskModel(
           id: newId,
           listId: widget.reciveListId,
@@ -49,39 +52,58 @@ class _TasksPageState extends State<TasksPage> {
     myController.clear();
   }
 
-  void deleteTask(String taskId) {
-    setState(() {
-      task.removeWhere((t) => t.id == taskId);
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    final current = list.firstWhere(
-      (l) => l.id == widget.reciveListId,
-      orElse: () => list.first,
-    );
-
-    selectedLable = current.type;
+  void deleteTask(int key) {
+    tasksBox.delete(key);
+    setState(() {});
   }
 
   void updateListLabel(labelType newType) {
     setState(() {
       selectedLable = newType;
-
-      final i = list.indexWhere((l) => l.id == widget.reciveListId);
-      if (i != -1) {
-        list[i] = list[i].copyWith(type: newType, nameLabel: newType.name);
-      }
     });
+    final current = listsBox.get(widget.listKey);
+    if (current == null) return;
+
+    listsBox.put(widget.listKey, current.copyWith(type: newType));
+  }
+
+  void saveTitle() {
+    final newTitle = titleController.text.trim();
+    if (newTitle.isEmpty) return;
+
+    final current = listsBox.get(widget.listKey);
+    if (current == null) return;
+
+    listsBox.put(widget.listKey, current.copyWith(listName: newTitle));
+
+    setState(() {
+      isEditingTitle = false;
+    });
+  }
+
+  bool isEditingTitle = false;
+  late TextEditingController titleController;
+
+  late final Box<TaskModel> tasksBox;
+  late final Box<ListsModel> listsBox;
+  @override
+  void initState() {
+    super.initState();
+    tasksBox = Hive.box<TaskModel>('tasksBox');
+    listsBox = Hive.box<ListsModel>('listsBox');
+    final current = listsBox.get(widget.listKey);
+
+    selectedLable = current?.type;
+
+    titleController = TextEditingController(text: current?.listName ?? '');
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredTasks = task
-        .where((t) => t.listId == widget.reciveListId && !t.isDone)
+    final filteredEntries = tasksBox
+        .toMap()
+        .entries
+        .where((e) => e.value.listId == widget.reciveListId && !e.value.isDone)
         .toList();
 
     return Scaffold(
@@ -93,7 +115,9 @@ class _TasksPageState extends State<TasksPage> {
             buttonHeight: 40,
             buttonName: 'save',
             buttonWidth: 80,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
         ],
       ),
@@ -108,7 +132,27 @@ class _TasksPageState extends State<TasksPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.reciveListName, style: kTitleText),
+                    // Text(widget.reciveListName,style: kTitleText,),
+                    isEditingTitle
+                        ? TextField(
+                            controller: titleController,
+                            autofocus: true,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
+                            onSubmitted: (_) => saveTitle(),
+                          )
+                        : GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isEditingTitle = true;
+                              });
+                            },
+                            child: Text(
+                              titleController.text,
+                              style: kTitleText,
+                            ),
+                          ),
                     TextField(
                       controller: myController,
                       decoration: InputDecoration(
@@ -116,35 +160,29 @@ class _TasksPageState extends State<TasksPage> {
                       ),
                     ),
                     Expanded(
-                      child: filteredTasks.isEmpty
+                      child: filteredEntries.isEmpty
                           ? const Center(child: Text('No tasks yet'))
                           : ListView.builder(
-                              itemCount: filteredTasks.length,
+                              itemCount: filteredEntries.length,
                               itemBuilder: (context, index) {
-                                final t = filteredTasks[index];
+                                final entry = filteredEntries[index];
+                                final key = entry.key as int;
+                                final task = entry.value;
 
                                 return Row(
                                   children: [
                                     Checkbox(
-                                      value: t.isDone,
+                                      value: task.isDone,
                                       onChanged: (value) {
-                                        setState(() {
-                                          final i = task.indexWhere(
-                                            (x) => x.id == t.id,
-                                          );
-                                          if (i != -1) {
-                                            task[i] = TaskModel(
-                                              id: task[i].id,
-                                              listId: task[i].listId,
-                                              taskTitle: task[i].taskTitle,
-                                              isDone: value ?? false,
-                                            );
-                                          }
-                                        });
+                                        tasksBox.put(
+                                          key,
+                                          task.copyWith(isDone: value ?? false),
+                                        );
+                                        setState(() {});
                                       },
                                     ),
                                     Text(
-                                      t.taskTitle,
+                                      task.taskTitle,
                                       style: const TextStyle(
                                         color: Colors.black,
                                       ),
@@ -152,7 +190,7 @@ class _TasksPageState extends State<TasksPage> {
                                     Spacer(),
                                     GestureDetector(
                                       onTap: () {
-                                        deleteTask(t.id);
+                                        deleteTask(key);
                                       },
                                       child: Icon(Icons.delete),
                                     ),
